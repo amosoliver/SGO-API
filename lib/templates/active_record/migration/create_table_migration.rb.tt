@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+    unless table_exists?(:<%= table_name %>)
+      create_table :<%= table_name %> do |t|
+<% attributes.each do |attribute| -%>
+<% if attribute.name != "deleted_at" -%>
+<% if attribute.type == :references -%>
+        t.references :<%= attribute.name %>, foreign_key: true
+<% else -%>
+        t.<%= attribute.type %> :<%= attribute.name %>
+<% end -%>
+<% end -%>
+<% end -%>
+        t.string :created_by
+        t.string :updated_by
+        t.datetime :deleted_at
+        t.timestamps
+      end
+    end
+  end
+
+  def down
+    drop_table :<%= table_name %> if table_exists?(:<%= table_name %>)
+  end
+end

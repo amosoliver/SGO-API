@@ -1,0 +1,54 @@
+<% module_namespacing do -%>
+# frozen_string_literal: true
+
+class Api::V1::<%= controller_class_name %>Controller < ApplicationController
+  before_action :set_<%= singular_name %>, only: %i[show update destroy]
+
+  def index
+    query = <%= class_name %>.ransack(params[:q])
+    render ResponseService.pagy_index(query.result, params, self)
+  end
+
+  def show
+    render_success(data: @<%= singular_name %>)
+  end
+
+  def create
+    @<%= singular_name %> = <%= class_name %>.new(<%= singular_name %>_params)
+
+    if @<%= singular_name %>.save
+      render_success(data: @<%= singular_name %>, status: :created)
+    else
+      render_error(errors: @<%= singular_name %>.errors.full_messages)
+    end
+  end
+
+  def update
+    if @<%= singular_name %>.update(<%= singular_name %>_params)
+      render_success(data: @<%= singular_name %>)
+    else
+      render_error(errors: @<%= singular_name %>.errors.full_messages)
+    end
+  end
+
+  def destroy
+    if @<%= singular_name %>.destroy
+      render_success(message: "Registro excluído com sucesso!")
+    else
+      render_error(errors: @<%= singular_name %>.errors.full_messages)
+    end
+  end
+
+  private
+
+  def set_<%= singular_name %>
+    @<%= singular_name %> = <%= class_name %>.find(params[:id])
+  end
+
+  def <%= singular_table_name %>_params
+    unpermitted = %w[id created_by updated_by deleted_at created_at updated_at]
+    permitted = <%= class_name %>.column_names.reject { |col| unpermitted.include?(col) }
+    params.require(:<%= singular_table_name %>).permit(permitted.map(&:to_sym))
+  end
+end
+<% end -%>

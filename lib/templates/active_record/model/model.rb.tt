@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+<% if attributes.select.any? %>
+# Associações:
+<% attributes.select { |attribute| attribute.type == :references }.each do |attribute| -%>
+# <%= attribute.name %>
+<% end -%>
+<% end %>
+
+# Atributos:
+<% attributes.reject { |attribute| attribute.type == :references }.each do |attribute| -%>
+# <%= attribute.type %> - <%= attribute.name %>
+<% end -%>
+
+class <%= class_name %> < ApplicationRecord
+<% attributes.select { |attribute| attribute.type == :references }.each do |attribute| -%>
+  belongs_to :<%= attribute.name %>
+<% end -%>
+end
