@@ -4,6 +4,10 @@ class Api::V1::AuthController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[login refresh_token primeiro_acesso]
   skip_before_action :validar_permissoes, only: %i[login refresh_token primeiro_acesso]
 
+  # @swagger_summary_login: Login com CPF
+  # @swagger_description_login: Autentica o usuario usando CPF e senha. O campo login tambem aceita CPF para compatibilidade com o frontend.
+  # @swagger_params_login: cpf, login, password
+  # @swagger_response_login: access_token, refresh_token, user
   def login
     user = find_user_by_credential
 
@@ -43,7 +47,7 @@ class Api::V1::AuthController < ApplicationController
 
   def refresh_token
     refresh_token = request.headers["Refresh-Token"] || params[:refresh_token]
-    user = refresh_token.present? ? User.find_by(refresh_token: refresh_token, deleted_at: nil) : nil
+    user = refresh_token.present? ? GUsuario.find_by(refresh_token: refresh_token, deleted_at: nil) : nil
 
     unless user && TokenService.valid_refresh_token?(user, refresh_token)
       return render_error(message: "Sessão inválida. Faça login novamente.", status: :unauthorized)
@@ -88,7 +92,7 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def primeiro_acesso
-    user = User.find_by(token_primeiro_acesso: primeiro_acesso_params[:token], primeiro_acesso: true, deleted_at: nil)
+    user = GUsuario.find_by(token_primeiro_acesso: primeiro_acesso_params[:token], primeiro_acesso: true, deleted_at: nil)
     return render_error(message: "Token inválido ou usuário não encontrado.", status: :not_found) if user.blank?
 
     if user.update(
@@ -111,9 +115,8 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def sincronizar_permissoes
-    Rails.application.load_tasks if Rake::Task.tasks.empty?
-    Rake::Task["menu:generate"].reenable
-    Rake::Task["menu:generate"].invoke
+    PermissionSyncService.new.call
+    ProfilePermissionSyncService.new.call(assign_admin_to: current_user)
 
     render_success(message: "Atualização e sincronização de permissões concluída.")
   rescue StandardError => e
@@ -123,7 +126,7 @@ class Api::V1::AuthController < ApplicationController
   private
 
   def login_params
-    params.permit(:email, :cpf, :login, :password)
+    params.permit(:cpf, :login, :email, :password)
   end
 
   def update_password_params
@@ -135,13 +138,7 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def find_user_by_credential
-    credential = login_params[:email].presence || login_params[:cpf].presence || login_params[:login].presence
-    return if credential.blank?
-
-    if credential.include?("@")
-      User.find_by(email: credential.downcase)
-    else
-      User.find_by(cpf: credential)
-    end
+    credential = login_params[:cpf].presence || login_params[:login].presence || login_params[:email].presence
+    GUsuario.find_active_by_login(credential)
   end
 end

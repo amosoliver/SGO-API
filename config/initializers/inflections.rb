@@ -30,6 +30,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "g_perfil_permissao", "g_perfis_permissoes"
   inflect.irregular "g_instrumento", "g_instrumentos"
   inflect.irregular "g_naipe", "g_naipes"
+  inflect.irregular "g_instrumento_naipe", "g_instrumentos_naipes"
   inflect.irregular "g_pessoa_naipe", "g_pessoa_naipes"
   inflect.irregular "m_musica", "m_musicas"
   inflect.irregular "m_material", "m_materiais"

@@ -3,8 +3,6 @@ require "swagger_openapi_json"
 require "swagger_ui_html"
 
 Rails.application.routes.draw do
-  devise_for :users, skip: :all
-
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -16,9 +14,12 @@ Rails.application.routes.draw do
       resources :m_evento_musicas
       resources :m_eventos
       resources :m_materiais
-      resources :m_musicas
+      resources :m_musicas do
+        post :upload_materiais, on: :member
+      end
       resources :g_pessoa_naipes
       resources :g_naipes
+      resources :g_instrumentos_naipes
       resources :g_instrumentos
       resources :g_usuarios
       resources :g_pessoas
@@ -38,7 +39,6 @@ Rails.application.routes.draw do
       get "auth/permissions/:jti", to: "auth#get_permissions"
       post "auth/sincronizar_permissoes", to: "auth#sincronizar_permissoes"
 
-      resources :users
       resources :g_perfis
       resources :g_permissoes, only: %i[index show create update destroy]
       resources :g_perfis_permissoes, only: %i[show create update destroy]

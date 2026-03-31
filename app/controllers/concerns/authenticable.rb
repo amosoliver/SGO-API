@@ -20,7 +20,8 @@ module Authenticable
     decoded_token = TokenService.decode_access_token(token)
     return render_error(message: "Token inválido ou expirado.", status: :unauthorized) if decoded_token.blank?
 
-    user = User.find_by(id: decoded_token["user_id"], deleted_at: nil)
+    g_usuario_id = decoded_token["g_usuario_id"] || decoded_token["user_id"]
+    user = GUsuario.find_by(id: g_usuario_id, deleted_at: nil)
     return render_error(message: "Token inválido ou expirado.", status: :unauthorized) if user.blank?
 
     RequestStore.store[:current_user] = user

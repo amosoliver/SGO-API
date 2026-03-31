@@ -4,7 +4,7 @@ class Api::V1::MMateriaisController < ApplicationController
   before_action :set_m_material, only: %i[show update destroy]
 
   def index
-    query = MMaterial.ransack(params[:q])
+    query = m_materiais_scope.ransack(params[:q])
     render ResponseService.pagy_index(query.result, params, self)
   end
 
@@ -41,7 +41,14 @@ class Api::V1::MMateriaisController < ApplicationController
   private
 
   def set_m_material
-    @m_material = MMaterial.find(params[:id])
+    @m_material = m_materiais_scope.find(params[:id])
+  end
+
+  def m_materiais_scope
+    base_scope = MMaterial.includes(:m_musica, { g_instrumento_naipe: %i[g_instrumento g_naipe] }, arquivo_attachment: :blob)
+    return base_scope unless current_user&.corista?
+
+    base_scope.where(g_instrumento_naipe_id: current_user.associated_instrumento_naipe_ids)
   end
 
   def m_material_params

@@ -3,7 +3,8 @@
 class GPerfil < ApplicationRecord
   self.table_name = "g_perfis"
 
-  has_many :users, foreign_key: :g_perfil_id, inverse_of: :g_perfil, dependent: :nullify
+  has_many :g_usuario_perfis, dependent: :destroy
+  has_many :g_usuarios, through: :g_usuario_perfis
   has_many :g_perfis_permissoes, dependent: :destroy
   has_many :g_permissoes, through: :g_perfis_permissoes
 

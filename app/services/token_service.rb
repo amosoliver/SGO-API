@@ -7,9 +7,11 @@ class TokenService
 
     payload = {
       user_id: user.id,
+      g_usuario_id: user.id,
       user_nome: user.nome,
-      user_admin: user.admin,
+      user_admin: user.admin?,
       email: user.email,
+      cpf: user.cpf,
       g_perfil_id: user.g_perfil_id,
       administrador: user.admin?,
       jti: jti,

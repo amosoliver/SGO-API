@@ -4,7 +4,7 @@ class Api::V1::GPerfisController < ApplicationController
   before_action :set_g_perfil, only: %i[show update destroy]
 
   def index
-    query = GPerfil.active.includes(:users, :g_permissoes).order(:descricao).ransack(params[:q])
+    query = GPerfil.active.includes(:g_usuarios, :g_permissoes).order(:descricao).ransack(params[:q])
     render ResponseService.pagy_index(query.result, params, self)
   end
 

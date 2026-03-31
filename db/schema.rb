@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_043000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "c_corais", force: :cascade do |t|
     t.boolean "ativo"
@@ -72,16 +100,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.string "updated_by"
   end
 
+  create_table "g_instrumentos_naipes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "created_by"
+    t.datetime "deleted_at"
+    t.bigint "g_instrumento_id", null: false
+    t.bigint "g_naipe_id", null: false
+    t.integer "ordem"
+    t.datetime "updated_at", null: false
+    t.string "updated_by"
+    t.index ["deleted_at"], name: "index_g_instrumentos_naipes_on_deleted_at"
+    t.index ["g_instrumento_id", "g_naipe_id"], name: "index_g_instrumentos_naipes_on_instrumento_and_naipe", unique: true
+    t.index ["g_instrumento_id"], name: "index_g_instrumentos_naipes_on_g_instrumento_id"
+    t.index ["g_naipe_id"], name: "index_g_instrumentos_naipes_on_g_naipe_id"
+  end
+
   create_table "g_naipes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "created_by"
     t.datetime "deleted_at"
     t.string "descricao"
-    t.bigint "g_instrumento_id"
-    t.integer "ordem"
     t.datetime "updated_at", null: false
     t.string "updated_by"
-    t.index ["g_instrumento_id"], name: "index_g_naipes_on_g_instrumento_id"
   end
 
   create_table "g_paises", force: :cascade do |t|
@@ -150,6 +190,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
 
   create_table "g_pessoas", force: :cascade do |t|
     t.boolean "ativo"
+    t.string "cpf"
     t.datetime "created_at", null: false
     t.string "created_by"
     t.datetime "deleted_at"
@@ -159,6 +200,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.bigint "g_tipo_pessoa_id"
     t.datetime "updated_at", null: false
     t.string "updated_by"
+    t.index ["cpf"], name: "index_g_pessoas_on_cpf", unique: true
     t.index ["g_igreja_id"], name: "index_g_pessoas_on_g_igreja_id"
     t.index ["g_tipo_pessoa_id"], name: "index_g_pessoas_on_g_tipo_pessoa_id"
   end
@@ -180,6 +222,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.string "email"
     t.string "encrypted_password"
     t.bigint "g_pessoa_id"
+    t.boolean "primeiro_acesso", default: false, null: false
+    t.string "refresh_token"
+    t.string "token_primeiro_acesso"
     t.datetime "updated_at", null: false
     t.string "updated_by"
     t.index ["g_pessoa_id"], name: "index_g_usuarios_on_g_pessoa_id"
@@ -190,12 +235,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.string "created_by"
     t.datetime "deleted_at"
     t.bigint "g_perfil_id", null: false
+    t.bigint "g_usuario_id", null: false
     t.datetime "updated_at", null: false
     t.string "updated_by"
-    t.bigint "user_id", null: false
     t.index ["deleted_at"], name: "index_g_usuarios_perfis_on_deleted_at"
     t.index ["g_perfil_id"], name: "index_g_usuarios_perfis_on_g_perfil_id"
-    t.index ["user_id"], name: "index_g_usuarios_perfis_on_user_id"
+    t.index ["g_usuario_id"], name: "index_g_usuarios_perfis_on_g_usuario_id"
   end
 
   create_table "m_evento_musicas", force: :cascade do |t|
@@ -233,14 +278,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.string "created_by"
     t.datetime "deleted_at"
     t.string "descricao"
-    t.bigint "g_instrumento_id"
-    t.bigint "g_naipe_id"
+    t.bigint "g_instrumento_naipe_id"
     t.bigint "m_musica_id"
     t.string "tipo"
     t.datetime "updated_at", null: false
     t.string "updated_by"
-    t.index ["g_instrumento_id"], name: "index_m_materiais_on_g_instrumento_id"
-    t.index ["g_naipe_id"], name: "index_m_materiais_on_g_naipe_id"
+    t.index ["g_instrumento_naipe_id"], name: "index_m_materiais_on_g_instrumento_naipe_id"
     t.index ["m_musica_id"], name: "index_m_materiais_on_m_musica_id"
   end
 
@@ -250,7 +293,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.string "created_by"
     t.datetime "deleted_at"
     t.string "descricao"
-    t.integer "duracao"
+    t.time "duracao"
     t.string "tonalidade"
     t.datetime "updated_at", null: false
     t.string "updated_by"
@@ -294,11 +337,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "c_corais", "g_igrejas"
   add_foreign_key "g_cidades", "g_estados"
   add_foreign_key "g_estados", "g_paises"
   add_foreign_key "g_igrejas", "g_cidades"
-  add_foreign_key "g_naipes", "g_instrumentos"
+  add_foreign_key "g_instrumentos_naipes", "g_instrumentos"
+  add_foreign_key "g_instrumentos_naipes", "g_naipes"
   add_foreign_key "g_perfis_permissoes", "g_perfis"
   add_foreign_key "g_perfis_permissoes", "g_permissoes"
   add_foreign_key "g_pessoa_naipes", "g_instrumentos"
@@ -308,14 +354,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_231340) do
   add_foreign_key "g_pessoas", "g_tipos_pessoa"
   add_foreign_key "g_usuarios", "g_pessoas"
   add_foreign_key "g_usuarios_perfis", "g_perfis"
-  add_foreign_key "g_usuarios_perfis", "users"
+  add_foreign_key "g_usuarios_perfis", "g_usuarios"
   add_foreign_key "m_evento_musicas", "m_eventos"
   add_foreign_key "m_evento_musicas", "m_musicas"
   add_foreign_key "m_eventos", "c_corais"
   add_foreign_key "m_eventos", "g_igrejas"
   add_foreign_key "m_eventos", "o_orquestras"
-  add_foreign_key "m_materiais", "g_instrumentos"
-  add_foreign_key "m_materiais", "g_naipes"
+  add_foreign_key "m_materiais", "g_instrumentos_naipes"
   add_foreign_key "m_materiais", "m_musicas"
   add_foreign_key "o_orquestras", "g_igrejas"
 end

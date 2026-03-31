@@ -4,7 +4,7 @@ class Api::V1::GPessoaNaipesController < ApplicationController
   before_action :set_g_pessoa_naipe, only: %i[show update destroy]
 
   def index
-    query = GPessoaNaipe.ransack(params[:q])
+    query = g_pessoa_naipes_scope.ransack(params[:q])
     render ResponseService.pagy_index(query.result, params, self)
   end
 
@@ -41,7 +41,13 @@ class Api::V1::GPessoaNaipesController < ApplicationController
   private
 
   def set_g_pessoa_naipe
-    @g_pessoa_naipe = GPessoaNaipe.find(params[:id])
+    @g_pessoa_naipe = g_pessoa_naipes_scope.find(params[:id])
+  end
+
+  def g_pessoa_naipes_scope
+    return GPessoaNaipe.all unless current_user&.corista?
+
+    GPessoaNaipe.where(g_pessoa_id: current_user.g_pessoa_id)
   end
 
   def g_pessoa_naipe_params

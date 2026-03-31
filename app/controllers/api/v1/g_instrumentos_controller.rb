@@ -4,7 +4,7 @@ class Api::V1::GInstrumentosController < ApplicationController
   before_action :set_g_instrumento, only: %i[show update destroy]
 
   def index
-    query = GInstrumento.ransack(params[:q])
+    query = g_instrumentos_scope.ransack(params[:q])
     render ResponseService.pagy_index(query.result, params, self)
   end
 
@@ -41,7 +41,13 @@ class Api::V1::GInstrumentosController < ApplicationController
   private
 
   def set_g_instrumento
-    @g_instrumento = GInstrumento.find(params[:id])
+    @g_instrumento = g_instrumentos_scope.find(params[:id])
+  end
+
+  def g_instrumentos_scope
+    return GInstrumento.all unless current_user&.corista?
+
+    GInstrumento.where(id: current_user.associated_instrument_ids)
   end
 
   def g_instrumento_params
