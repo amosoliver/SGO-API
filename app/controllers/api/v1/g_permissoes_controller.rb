@@ -5,7 +5,12 @@ class Api::V1::GPermissoesController < ApplicationController
 
   def index
     query = GPermissao.active.order(:controlador, :acao).ransack(params[:q])
-    render ResponseService.pagy_index(query.result, params, self)
+    items = query.result
+
+    render json: {
+      items: ActiveModelSerializers::SerializableResource.new(items),
+      total_count: items.size
+    }
   end
 
   def show

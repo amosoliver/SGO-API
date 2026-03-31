@@ -19,6 +19,23 @@ class GPessoa < ApplicationRecord
 
   before_validation :normalize_cpf
 
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[
+      ativo
+      cpf
+      created_at
+      created_by
+      deleted_at
+      descricao
+      email
+      g_igreja_id
+      g_tipo_pessoa_id
+      id
+      updated_at
+      updated_by
+    ]
+  end
+
   def self.normalize_cpf_value(value)
     value.to_s.gsub(/\D/, "")
   end

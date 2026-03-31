@@ -16,7 +16,7 @@ class Api::V1::MEventosController < ApplicationController
     @m_evento = MEvento.new(m_evento_params)
 
     if @m_evento.save
-      render_success(data: @m_evento, status: :created)
+      render_success(data: evento_create_payload(@m_evento), status: :created)
     else
       render_error(errors: @m_evento.errors.full_messages)
     end
@@ -48,5 +48,16 @@ class Api::V1::MEventosController < ApplicationController
     unpermitted = %w[id created_by updated_by deleted_at created_at updated_at]
     permitted = MEvento.column_names.reject { |col| unpermitted.include?(col) }
     params.require(:m_evento).permit(permitted.map(&:to_sym))
+  end
+
+  def evento_create_payload(evento)
+    {
+      evento: serialize_data(evento).as_json,
+      gerenciamento_musicas: {
+        m_evento_id: evento.id,
+        index_path: api_v1_m_evento_m_evento_musicas_path(evento),
+        create_path: api_v1_m_evento_m_evento_musicas_path(evento)
+      }
+    }
   end
 end

@@ -4,7 +4,7 @@ class GPerfilSerializer < ActiveModel::Serializer
   attributes :id, :descricao, :quantidade_usuarios, :quantidade_permissoes
 
   def quantidade_usuarios
-    object.users.loaded? ? object.users.size : object.users.count
+    object.g_usuarios.loaded? ? object.g_usuarios.size : object.g_usuarios.count
   end
 
   def quantidade_permissoes

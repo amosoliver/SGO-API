@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_31_043000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -252,6 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_043000) do
     t.integer "ordem"
     t.datetime "updated_at", null: false
     t.string "updated_by"
+    t.index ["m_evento_id", "ordem"], name: "index_m_evento_musicas_on_evento_id_and_ordem_unique", unique: true, where: "(deleted_at IS NULL)"
     t.index ["m_evento_id"], name: "index_m_evento_musicas_on_m_evento_id"
     t.index ["m_musica_id"], name: "index_m_evento_musicas_on_m_musica_id"
   end

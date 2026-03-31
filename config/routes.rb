@@ -12,7 +12,9 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :m_evento_musicas
-      resources :m_eventos
+      resources :m_eventos do
+        resources :m_evento_musicas, only: %i[index create]
+      end
       resources :m_materiais
       resources :m_musicas do
         post :upload_materiais, on: :member

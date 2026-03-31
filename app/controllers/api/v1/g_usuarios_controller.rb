@@ -13,21 +13,10 @@ class Api::V1::GUsuariosController < ApplicationController
   end
 
   def create
-    @g_usuario = GUsuario.new(base_g_usuario_params)
-    assign_person_attributes(@g_usuario)
+    result = GUsuarioCreateService.new(g_usuario_payload).call
+    return tratar_resposta(result) if result.failure?
 
-    GUsuario.transaction do
-      @g_usuario.save!
-      sync_profile!(@g_usuario)
-    end
-
-    render_success(data: @g_usuario, status: :created)
-  rescue ActiveRecord::RecordInvalid => e
-    if e.record == @g_usuario
-      render_error(errors: @g_usuario.errors.full_messages)
-    else
-      render_error(errors: e.record.errors.full_messages)
-    end
+    render_success(data: result.value, status: :created)
   end
 
   def update
@@ -70,7 +59,10 @@ class Api::V1::GUsuariosController < ApplicationController
       :g_pessoa_id,
       :cpf,
       :descricao,
-      :g_perfil_id
+      :g_perfil_id,
+      :g_tipo_pessoa_id,
+      :g_igreja_id,
+      g_pessoa: %i[descricao email cpf ativo g_tipo_pessoa_id g_igreja_id]
     )
   end
 
