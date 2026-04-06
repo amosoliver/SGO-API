@@ -61,7 +61,7 @@ gem "combine_pdf"
 gem "fast_excel"
 gem "rake", "13.3.1"
 gem "caxlsx", "~> 4.4"
-gem "caxlsx_rails", "~> 0.6.1"
+gem "caxlsx_rails", "~> 0.7.1"
 gem "roo"
 gem "paper_trail", "~> 17.0"
 
