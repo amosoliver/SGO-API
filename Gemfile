@@ -67,7 +67,7 @@ gem "paper_trail", "~> 17.0"
 
 group :development, :test do
   gem "simplecov", require: false, group: :test
-  gem "simplecov-cobertura", "~> 2.1", require: false, group: :test
+  gem "simplecov-cobertura", "~> 3.1", require: false, group: :test
   gem "byebug"
 
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
